@@ -9,7 +9,11 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 public class CurrencyConverter {
-  public static void main(String[] args) {
+  public static Double main(String[] args) {
+    // Gets array list with initial currency, currency to convert to, and amount to
+    // convert
+    // gets conversion rate between initial currency and currency to convert to,
+    // returns the final converted amount of money.
 
     ArrayList<String> convertArray = new ArrayList<>();
 
@@ -20,9 +24,14 @@ public class CurrencyConverter {
     System.out.println(convertArray);
     System.out.println(conversionRate);
 
+    Double currencyConverted = Double.valueOf(convertArray.get(2)) * Double.valueOf(conversionRate);
+
+    return currencyConverted;
   }
 
   public static ArrayList<String> display() {
+    // Displays to user to enter the initial currency and currency to convert to
+    // as well as amount to convert from.
     Scanner scanner = new Scanner(System.in);
     ArrayList<String> convertMessage = new ArrayList<String>();
 
@@ -44,21 +53,27 @@ public class CurrencyConverter {
   }
 
   private static String currRateRequest(ArrayList<String> convertArray) {
+    // Makes request to third party api to get conversion rate from initial
+    // currency to currency to convert to.
+
     System.out.println("Getting conversion rate");
     System.out.println(convertArray);
     String conversionRate = "";
 
+    String uri = String.format(
+        "https://api.freecurrencyapi.com/v1/latest?apikey=2NY30aWPBLN9FOoWNYgozv19MElGZ6rlchjcLos9&base_currency=%s&currencies=%s",
+        convertArray.get(0), convertArray.get(1));
+    // System.out.println(uri);
+
     HttpClient client = HttpClient.newHttpClient();
     HttpRequest request = HttpRequest.newBuilder()
-        .uri(URI.create(
-            "https://api.freecurrencyapi.com/v1/latest?apikey=2NY30aWPBLN9FOoWNYgozv19MElGZ6rlchjcLos9&base_currency=USD&currencies=CAD"))
+        .uri(URI.create(uri))
         .build();
 
     HttpResponse<String> response;
     try {
       response = client.send(request, BodyHandlers.ofString());
 
-      System.out.println("here123");
       System.out.println(response.statusCode());
       System.out.println(response.body());
       conversionRate = response.body();
@@ -73,10 +88,8 @@ public class CurrencyConverter {
       return conversionRate;
 
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     } catch (InterruptedException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
 
