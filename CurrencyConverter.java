@@ -1,7 +1,10 @@
 
-import java.io.DataOutputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
+import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.net.http.HttpResponse.BodyHandlers;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -43,29 +46,40 @@ public class CurrencyConverter {
   private static String currRateRequest(ArrayList<String> convertArray) {
     System.out.println("Getting conversion rate");
     System.out.println(convertArray);
+    String conversionRate = "";
 
+    HttpClient client = HttpClient.newHttpClient();
+    HttpRequest request = HttpRequest.newBuilder()
+        .uri(URI.create(
+            "https://api.freecurrencyapi.com/v1/latest?apikey=2NY30aWPBLN9FOoWNYgozv19MElGZ6rlchjcLos9&base_currency=USD&currencies=CAD"))
+        .build();
+
+    HttpResponse<String> response;
     try {
-      URL url = new URL("https://api.freecurrencyapi.com/v1/latest?apikey=2NY30aWPBLN9FOoWNYgozv19MElGZ6rlchjcLos9");
-      HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-      connection.setRequestMethod("GET");
-      String parameters = "currencies=AED";
+      response = client.send(request, BodyHandlers.ofString());
 
-      connection.setRequestProperty("Content-Type",
-          "application/x-www-form-urlencoded");
+      System.out.println("here123");
+      System.out.println(response.statusCode());
+      System.out.println(response.body());
+      conversionRate = response.body();
 
-      connection.setRequestProperty("Content-Length",
-          Integer.toString(parameters.getBytes().length));
-      connection.setRequestProperty("Content-Language", "en-US");
+      String[] list = conversionRate.split(":");
+      for (String a : list) {
+        conversionRate = a;
+      }
 
-      connection.setDoOutput(true);
-      DataOutputStream out = new DataOutputStream(connection.getOutputStream());
-      out.writeBytes(parameters);
-      out.flush();
-      out.close();
+      conversionRate = conversionRate.replace("}", "");
 
-    } finally {
-      return "1.2";
+      return conversionRate;
+
+    } catch (IOException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    } catch (InterruptedException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
     }
 
+    return conversionRate;
   }
 }
